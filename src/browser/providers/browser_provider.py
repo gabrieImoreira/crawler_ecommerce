@@ -6,29 +6,32 @@ class GenericBrowser:
     def __init__(self):
         self.browser =  None
         self.options = Options()
-        default_options = [
+        self.default_options = [
             "--no-sandbox",
             "--disable--web-security",
             "--disable-dev-shm-usage",
             "--memory-pressure-off",
             "--ignore-certificate-errors",
         ]
-        self.options.add_argument("--no-sandbox")
 
-    def get_browser(self):
-        return webdriver.Chrome
-
+    def get_browser(self, args: list[str] = None):
+        new_args = args
+        if args is None:
+            new_args = self.default_options
+        self.set_options(new_args)
+        return webdriver.Chrome(options=self.options)
+    
     def is_headless(self):
         headless = os.getenv("HEADLESS")
-        if headles is None:
-            self.option.add_argument("--headless")
+        if headless is None:
+            self.options.add_argument("--headless")
     
     def set_options(self, args: list[str] | None):
         self.is_headless()
         self.set_proxy()
         if args:
             for opt in args:
-                self.option.add_argument(opt)
+                self.options.add_argument(opt)
         pass
             
     def set_proxy(self):

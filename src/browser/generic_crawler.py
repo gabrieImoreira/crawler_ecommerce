@@ -1,7 +1,10 @@
 from browser.actions.browser_actions import action_dict
 from browser.crawler.default_crawler import AbstractCrawler
-import json
 from bs4 import BeautifulSoup
+import pandas as pd
+from datetime import datetime
+import json
+import time
 
 
 class GenericBrowserCrawler(AbstractCrawler):
@@ -13,17 +16,18 @@ class GenericBrowserCrawler(AbstractCrawler):
             raise ("Site não encontrado")
 
     def crawl(self, query):
-        print(self.steps)
-        # self.query = query
-        # self.execute_before()
-        # df = self.execute_main()
-        # self.execute_after()
-        # self.save_data()
+        self.query = query
+        self.execute_before()
+        df = self.execute_main()
+        self.execute_after()
+        self.mongo.save_dataframe(df)
+        print("Wait")
+
 
     def execute_main(self):
         self.browser.get(f'{self.steps["link"]["path"]}{self.query.replace(" ", self.steps["link"]["connector"])}')
         time.sleep(5)
-        self.content - self.extraction()
+        self.content = self.extraction()
         df = self.transform_df(self.content)
         return df
 
@@ -34,6 +38,7 @@ class GenericBrowserCrawler(AbstractCrawler):
                 if action_dict[action] is None:
                     raise ("Ação não encontrada")
                 action_dict[action](self.browser, after[before])
+        return
 
     def execute_after(self):
         after = self.steps["script"]["after"]
@@ -42,19 +47,17 @@ class GenericBrowserCrawler(AbstractCrawler):
                 if action_dict[action] is None:
                     raise ("Ação não encontrada")
                 action_dict[action](self.browser, after[action])
+        return
 
     def extraction(self):
         self.html = self.browser.page_source
-
         soup = BeautifulSoup(self.html, "html.parser")
 
         if self.steps["search"]["custom"]:
             results = soup.find_all(self.steps["search"]["tag"], self.steps["search"]["custom"])
         else:
             results = soup.find_all(self.steps["search"]["tag"], class_=self.steps["search"]["class"])
-
         data = []
-
         for result in results:
             product = {}
             for step in self.steps["product"]:
@@ -63,10 +66,11 @@ class GenericBrowserCrawler(AbstractCrawler):
                 try:
                     content = eval(value)
                 except:
-                    content = Non	
+                    content = None	
                 product[step] = content
             data.append(product)
         self.browser.close()
+
         return data
 
     def transform_df(self, data):
@@ -79,9 +83,3 @@ class GenericBrowserCrawler(AbstractCrawler):
 
     def save_data(self, data):
         pass
-        # df = pd.DataFrame(data)
-        # df = df.assign(keyword=self.query)
-        # df = df.assign(dataTimeReference=datetime.now().isoformat())
-        # df = df.assign(crawlerType="Browser")
-
-        # return df
