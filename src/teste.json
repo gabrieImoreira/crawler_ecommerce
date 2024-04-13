@@ -1,0 +1,20 @@
+{
+    "link": {
+        "path": "https://lista.mercadolivre.com.br/",
+        "connector": "-"
+    },
+    "script": {
+        "before": {},
+        "after": {}
+    },
+    "search": {
+        "tag": "div",
+        "class": "ul-search-result",
+        "custom": ""
+    },
+    "product": {
+        "title": "result.find(\"h2\", class_=\"ui-search-item__title\").text.strip()",
+        "price": "result.find(\"span\", class_=\"andes-money-amount__fraction\").text.strip()",
+        "link_tag": "result.find(\"a\", class _= \"ul-search-link\").get(\"href\")"
+    }
+}

@@ -4,6 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+selenium = "*"
+bs4 = "*"
+pandas = "*"
+requests = "*"
+redis = "*"
+pymongo = "*"
 
 [dev-packages]
 
